@@ -67,6 +67,6 @@ split
 update
 {
 //DEBUG CODE
-print(current.testLoading.ToString());
+//print(current.testLoading.ToString());
 //print(current.loadedAct.ToString());
 } 
