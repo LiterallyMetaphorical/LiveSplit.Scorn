@@ -82,6 +82,6 @@ split
 update
 {
 //DEBUG CODE
-print(current.playerXpos.ToString());
-print(current.loadedAct.ToString());
+//print(current.playerXpos.ToString());
+//print(current.loadedAct.ToString());
 } 
