@@ -1,11 +1,12 @@
 // Created by Meta and Nikoheart
+// Also shoutouts to Looney for helping Meta's dumbass figure out fuckin if statements lmao
 
 state("Scorn-Win64-Shipping")
 {
 	int loading   : 0x46ACEC0; 
 	int loadedAct : 0x046C0400, 0x0, 0x298;
-	int finalCS : 0x44A3B8C;
-	int playerControl : 0x044A3510, 0x8D8, 0x8;
+	//int finalCS : 0x44A3B8C;
+    float playerXpos  : 0x047B2E98, 0x8, 0x110, 0x1A0, 0x10, 0x250;
 }
 
 init
@@ -15,7 +16,7 @@ init
 
 startup
 {
-	vars.TimeOffset = -27.15;
+    vars.TimeOffset = -27.15;
 	if (timer.CurrentTimingMethod == TimingMethod.RealTime)
 	// Asks user to change to game time if LiveSplit is currently set to Real Time.
 	{        
@@ -41,13 +42,14 @@ onStart
 }
 
 start
-{
-	return old.playerControl == 5 && current.playerControl == 2 & current.loading != 0;
-}
-
-isLoading
-{
-	return current.loading != 0;
+{   
+    //pointer goes null and then to 0 during load
+    if (current.playerXpos == null || old.playerXpos != 0) 
+    {
+    return false;
+    }
+    // then picks up proper position of like -24871.98633 which gets rounded to -24871.99 in livesplit
+    return old.playerXpos == 0 && current.playerXpos < -23000; 
 }
 
 gameTime
@@ -59,14 +61,27 @@ gameTime
 	}
 }
 
+isLoading
+{
+	return current.loading != 0;
+}
+
+split
+{
+    return old.loadedAct > 0 && current.loadedAct == old.loadedAct + 1;
+}
+
+/* this split method also splits at the white flash at the end of the game
 split 
 { 	
-	return current.loadedAct == old.loadedAct + 1;
+	return old.loadedAct > 0 && current.loadedAct == old.loadedAct + 1 ||
+    current.loadedAct == 8 && old.playerXpos > 170000 && current.playerXpos == 0;
 }
+*/
 
 update
 {
 //DEBUG CODE
-//print(current.testLoading.ToString());
-//print(current.loadedAct.ToString());
+print(current.playerXpos.ToString());
+print(current.loadedAct.ToString());
 } 
