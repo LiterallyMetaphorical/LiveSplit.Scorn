@@ -3,20 +3,42 @@
 state("Scorn-Win64-Shipping", "Steam 1.0")
 {
 	int isLoading       : 0x48E4740, 0x180, 0x240;
+    int loadedSubLevel  : 0x48E4740, 0x180, 0x328;
+    byte12 cameraPosition : 0x48E4740, 0x180, 0x38, 0x0, 0x30, 0x2B8, 0x228, 0x11C;
+
+    float pawnPositionX   : 0x48E4740, 0x180, 0x38, 0x0, 0x30, 0x2A0, 0x130, 0x11C;
+    byte1 characterState  : 0x48E4740, 0x180, 0x38, 0x0, 0x30, 0x2A0, 0x280, 0x6B0, 0x388;
+    // Not sure what this is but it helps us track the ending flash
+}
+
+state("Scorn-WinGDK-Shipping", "XboxGP v1.0")
+{
+	int isLoading         : 0x44AD358, 0x180, 0x240;
+    int loadedSubLevel    : 0x44AD358, 0x180, 0x328;
+    byte12 cameraPosition : 0x44AD358, 0x180, 0x38, 0x0, 0x30, 0x2B8, 0x228, 0x11C;
+
+    // Find this one again
+    float pawnPositionX   : 0x44AD358, 0x180, 0x38, 0x0, 0x30, 0x2A0, 0x130, 0x11C;
+    byte1 characterState  : 0x44AD358, 0x180, 0x38, 0x0, 0x30, 0x2A0, 0x280, 0x6B0, 0x388;
+}
+
+state("Scorn-Win64-Shipping", "Steam v1.1.8.0")
+{
+	int isLoading         : 0x48E69C0, 0x180, 0x240;
     /*                         ^       ^      ^
         GWorld-----------------|       |      |
         UAbstractScornGameInstance-----|      |
         bShowLoading--------------------------|
     */
 
-    int loadedSubLevel  : 0x48E4740, 0x180, 0x328;
+    int loadedSubLevel    : 0x48E69C0, 0x180, 0x328;
     /*                         ^       ^      ^
         GWorld-----------------|       |      |
         UAbstractScornGameInstance-----|      |
         EScornSubLevel------------------------|
     */
 
-    byte12 cameraPosition : 0x48E4740, 0x180, 0x38, 0x0, 0x30, 0x2B8, 0x228, 0x11C;
+    byte12 cameraPosition : 0x48E69C0, 0x180, 0x38, 0x0, 0x30, 0x2B8, 0x228, 0x11C;
     /*                         ^       ^      ^     ^     ^     ^     ^      ^
         GWorld-----------------|       |      |     |     |     |     |      |
         UAbstractScornGameInstance-----|      |     |     |     |     |      |
@@ -27,29 +49,32 @@ state("Scorn-Win64-Shipping", "Steam 1.0")
         USceneComponent-----------------------------------------------|      |
         FVector[RelativeLocation]--------------------------------------------|
     */
+    
+    float pawnPositionX   : 0x48E69C0, 0x180, 0x38, 0x0, 0x30, 0x2A0, 0x130, 0x11C;
+    /*                         ^       ^      ^     ^     ^     ^     ^      ^
+        GWorld-----------------|       |      |     |     |     |     |      |
+        UAbstractScornGameInstance-----|      |     |     |     |     |      |
+        TArray<class ULocalPlayer*>-----------|     |     |     |     |      |
+        UPlayer (ULocalPlayer)----------------------|     |     |     |      |
+        APlayerController---------------------------------|     |     |      |
+        APawn---------------------------------------------------|     |      |
+        USceneComponent-----------------------------------------------|      |
+        FVector[RelativeLocation]--------------------------------------------|
+    */
 
-    float playerXpos  : 0x047B2E98, 0x8, 0x110, 0x1A0, 0x10, 0x250;
-    // Not sure what this is but it helps us track the ending flash
-}
-
-state("Scorn-winGDK-Shipping", "XboxGP v1.0")
-{
-    int isLoading         : 0x44AD358, 0x180, 0x240;
-    int loadedSubLevel    : 0x44AD358, 0x180, 0x328;
-    byte12 cameraPosition : 0x44AD358, 0x180, 0x38, 0x0, 0x30, 0x2B8, 0x228, 0x11C;
-
-    // Find this one again
-    float playerXpos      : 0x047B2E98, 0x8, 0x110, 0x1A0, 0x10, 0x250;
-}
-
-state("Scorn-Win64-Shipping", "Steam v1.1.8.0")
-{
-    int isLoading         : 0x48E69C0, 0x180, 0x240;
-    int loadedSubLevel    : 0x48E69C0, 0x180, 0x328;
-    byte12 cameraPosition : 0x48E69C0, 0x180, 0x38, 0x0, 0x30, 0x2B8, 0x228, 0x11C;
-
-    // find this one again
-    float playerXpos      : 0x047B2E98, 0x8, 0x110, 0x1A0, 0x10, 0x250;
+    // we can only take a single byte ouf ot this; use as current.characterState[0]
+    byte1 characterState    : 0x48E69C0, 0x180, 0x38, 0x0, 0x30, 0x2A0, 0x280, 0x6B0, 0x388;
+    /*                         ^       ^      ^     ^     ^     ^     ^      ^        ^
+        GWorld-----------------|       |      |     |     |     |     |      |        |
+        UAbstractScornGameInstance-----|      |     |     |     |     |      |        |
+        TArray<class ULocalPlayer*>-----------|     |     |     |     |      |        |
+        UPlayer (ULocalPlayer)----------------------|     |     |     |      |        |
+        APlayerController---------------------------------|     |     |      |        |
+        ACharacter(APawn)---------------------------------------|     |      |        |
+        USkeletalMeshComponent----------------------------------------|      |        |
+        UMainCharacterAnimInstance(UAnimInstance)----------------------------|        |
+        ECharacterState-------------------------------------------------------------- |
+    */
 }
 
 init
@@ -187,7 +212,7 @@ split
         }
 
         // Custom last split
-        if (current.loadedSubLevel == 8 && old.playerXpos > 170000 && current.playerXpos == 0) return true;
+        if (current.loadedSubLevel == 8 && current.pawnPositionX > 175000 && current.characterState[0] == 11) return true;
     }
 
     return false;
