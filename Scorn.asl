@@ -1,6 +1,6 @@
 // Created by Meta, Nikoheart and oneir1c with help from LivingLooneyBin
 
-state("Scorn-Win64-Shipping")
+state("Scorn-Win64-Shipping", "Steam 1.0")
 {
 	int isLoading       : 0x48E4740, 0x180, 0x240;
     /*                         ^       ^      ^
@@ -32,9 +32,46 @@ state("Scorn-Win64-Shipping")
     // Not sure what this is but it helps us track the ending flash
 }
 
+state("Scorn-winGDK-Shipping", "XboxGP v1.0")
+{
+    int isLoading         : 0x44AD358, 0x180, 0x240;
+    int loadedSubLevel    : 0x44AD358, 0x180, 0x328;
+    byte12 cameraPosition : 0x44AD358, 0x180, 0x38, 0x0, 0x30, 0x2B8, 0x228, 0x11C;
+
+    // Find this one again
+    float playerXpos      : 0x047B2E98, 0x8, 0x110, 0x1A0, 0x10, 0x250;
+}
+
+state("Scorn-Win64-Shipping", "Steam v1.1.8.0")
+{
+    int isLoading         : 0x48E69C0, 0x180, 0x240;
+    int loadedSubLevel    : 0x48E69C0, 0x180, 0x328;
+    byte12 cameraPosition : 0x48E69C0, 0x180, 0x38, 0x0, 0x30, 0x2B8, 0x228, 0x11C;
+
+    // find this one again
+    float playerXpos      : 0x047B2E98, 0x8, 0x110, 0x1A0, 0x10, 0x250;
+}
+
 init
 {
     vars.endGameTimeOffset = new TimeSpan(0,0,9);
+
+	switch (modules.First().ModuleMemorySize) 
+    {
+        case 81539072: 
+            version = "Steam v1.0";
+            break;
+		case 76517376: 
+            version = "XboxGP v1.0";
+            break; 
+		case 81547264: 
+            version = "Steam v1.1.8.0";
+            break;
+
+    default:
+        print("Unknown version detected");
+        return false;
+    }
 }
 
 startup
@@ -80,7 +117,13 @@ onStart
 
 update
 {
-    // add more stuff here
+	    //Use cases for each version of the game listed in the State method
+		// this may not be necessary actually, assuming we get the same pointers/values in every version.
+		switch (version) 
+	{
+		case "Steam v1.0": case "XboxGP v1.0": case "Steam v1.1.8.0":
+			break;
+	}
     return;
 }
 
@@ -149,3 +192,4 @@ split
 
     return false;
 }
+
