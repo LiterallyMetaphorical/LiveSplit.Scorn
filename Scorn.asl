@@ -98,7 +98,7 @@ startup
     vars.runJustStarted = false;
 
     // Timing offset and flag
-    settings.Add("removeIntroTime", true, "Add a negative time offset when starting the run to remove the waking period during Act 1");
+    settings.Add("removeIntroTime", true, "Start timer at -27.15s. Enable this for full runs, disable for ILs");
     vars.startTimeOffsetFlag = false;
     vars.startTimeOffset = -27.15;
 
