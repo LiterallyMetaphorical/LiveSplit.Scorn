@@ -8,7 +8,6 @@ state("Scorn-Win64-Shipping", "Steam 1.0")
 
     float pawnPositionX   : 0x48E4740, 0x180, 0x38, 0x0, 0x30, 0x2A0, 0x130, 0x11C;
     byte1 characterState  : 0x48E4740, 0x180, 0x38, 0x0, 0x30, 0x2A0, 0x280, 0x6B0, 0x388;
-    // Not sure what this is but it helps us track the ending flash
 }
 
 state("Scorn-WinGDK-Shipping", "XboxGP v1.0")
@@ -79,8 +78,6 @@ state("Scorn-Win64-Shipping", "Steam v1.1.8.0")
 
 init
 {
-    vars.endGameTimeOffset = new TimeSpan(0,0,9);
-
 	switch (modules.First().ModuleMemorySize) 
     {
         case 81539072: 
@@ -180,11 +177,6 @@ gameTime
     {
         vars.startTimeOffsetFlag = false;
         return TimeSpan.FromSeconds(vars.startTimeOffset);
-    }
-
-        else if(current.loadedSubLevel == 8 && old.playerXpos > 170000 && current.playerXpos == 0)
-    {
-        return ((TimeSpan)timer.CurrentTime.GameTime).Subtract(vars.endGameTimeOffset);
     }
 }
 
