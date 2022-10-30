@@ -16,7 +16,6 @@ state("Scorn-WinGDK-Shipping", "XboxGP v1.0")
     int loadedSubLevel    : 0x44AD358, 0x180, 0x328;
     byte12 cameraPosition : 0x44AD358, 0x180, 0x38, 0x0, 0x30, 0x2B8, 0x228, 0x11C;
 
-    // Find this one again
     float pawnPositionX   : 0x44AD358, 0x180, 0x38, 0x0, 0x30, 0x2A0, 0x130, 0x11C;
     byte1 characterState  : 0x44AD358, 0x180, 0x38, 0x0, 0x30, 0x2A0, 0x280, 0x6B0, 0x388;
 }
@@ -63,16 +62,16 @@ state("Scorn-Win64-Shipping", "Steam v1.1.8.0")
 
     // we can only take a single byte ouf ot this; use as current.characterState[0]
     byte1 characterState    : 0x48E69C0, 0x180, 0x38, 0x0, 0x30, 0x2A0, 0x280, 0x6B0, 0x388;
-    /*                         ^       ^      ^     ^     ^     ^     ^      ^        ^
-        GWorld-----------------|       |      |     |     |     |     |      |        |
-        UAbstractScornGameInstance-----|      |     |     |     |     |      |        |
-        TArray<class ULocalPlayer*>-----------|     |     |     |     |      |        |
-        UPlayer (ULocalPlayer)----------------------|     |     |     |      |        |
-        APlayerController---------------------------------|     |     |      |        |
-        ACharacter(APawn)---------------------------------------|     |      |        |
-        USkeletalMeshComponent----------------------------------------|      |        |
-        UMainCharacterAnimInstance(UAnimInstance)----------------------------|        |
-        ECharacterState-------------------------------------------------------------- |
+    /*                         ^           ^      ^     ^     ^     ^     ^      ^        ^
+        GWorld-----------------|           |      |     |     |     |     |      |        |
+        UAbstractScornGameInstance---------|      |     |     |     |     |      |        |
+        TArray<class ULocalPlayer*>---------------|     |     |     |     |      |        |
+        UPlayer (ULocalPlayer)--------------------------|     |     |     |      |        |
+        APlayerController-------------------------------------|     |     |      |        |
+        ACharacter(APawn)-------------------------------------------|     |      |        |
+        USkeletalMeshComponent--------------------------------------------|      |        |
+        UMainCharacterAnimInstance(UAnimInstance)--------------------------------|        |
+        ECharacterState-------------------------------------------------------------------|
     */
 }
 
@@ -117,49 +116,42 @@ startup
 
     // Run start flags
     vars.isRunStarted = false;
-    vars.runJustStarted = false;
 
-    // Timing offset and flag
-    settings.Add("removeIntroTime", true, "Start timer at -27.15s. Enable this for full runs, disable for ILs");
-    vars.startTimeOffsetFlag = false;
-    vars.startTimeOffset = -27.15;
+    // IL auto start
+    settings.Add("ILMode", false, "IL Mode: Initiate timing as soon as level begins");
 
-    /* camera position; use if necessary
-    vars.cameraX = 0.0f;
-    vars.cameraY = 0.0f;
-    vars.cameraZ = 0.0f;
-    */
-}
-
-
-onStart
-{
-    timer.IsGameTimePaused = true;
+    // Character state default -- ECharacterState_MAX
+    vars.charState = 0x14;
 }
 
 update
 {
-	    //Use cases for each version of the game listed in the State method
-		// this may not be necessary actually, assuming we get the same pointers/values in every version.
-		switch (version) 
-	{
-		case "Steam v1.0": case "XboxGP v1.0": case "Steam v1.1.8.0":
-			break;
-	}
-    return;
+    // update the current Character State safely; the mesh reference may not be available
+    old.charState = vars.charState;
+    try { vars.charState = 0x14; vars.charState = current.characterState[0]; }
+    catch (Microsoft.CSharp.RuntimeBinder.RuntimeBinderException) {}
+    current.charState = vars.charState;
+
+    // log charState change
+    if (current.charState != old.charState) print("[SCORN ASL] charState: " + old.charState + " -> " + current.charState);
 }
 
 
 start
 {
-    // Run starts when leaving the first loadscreen
-    if (!vars.isRunStarted && current.isLoading == 0 && old.isLoading == 1) {
-        vars.isRunStarted = true;
-        vars.runJustStarted = true;
-        
-        // custom timing
-        if (settings["removeIntroTime"]) vars.startTimeOffsetFlag = true;
-        return true;
+    if (!vars.isRunStarted) {
+
+        // begin run with IL Mode; as soon as the character is initialized
+        if (settings["ILMode"] && current.charState == 0 && old.charState == 20) {
+            vars.isRunStarted = true;
+            return true;
+        }
+
+        // begin run in standard config; when leaving the first world event
+        if (current.charState == 0 && old.charState == 11) {
+            vars.isRunStarted = true;
+            return true;
+        }
     }
 
     return false;
@@ -171,18 +163,9 @@ onReset
     timer.IsGameTimePaused = true;
 }
 
-gameTime
-{
-    if(settings["removeIntroTime"] && vars.startTimeOffsetFlag) 
-    {
-        vars.startTimeOffsetFlag = false;
-        return TimeSpan.FromSeconds(vars.startTimeOffset);
-    }
-}
-
 isLoading
 {
-    if (current.isLoading != old.isLoading) print("[SCORN ASL] isLoading " + current.isLoading.ToString());
+    if (current.isLoading != old.isLoading) print("[SCORN ASL] isLoading " + old.isLoading.ToString() + " -> " + current.isLoading.ToString());
 	return current.isLoading != 0;
 }
 
@@ -192,21 +175,13 @@ split
 
         // Normal splitting
         if (current.loadedSubLevel == old.loadedSubLevel + 1) {
-            print("[SCORN ASL] loadedSubLevel " + current.loadedSubLevel.ToString());
-
-            // Avoid redundant first split
-            if (vars.runJustStarted) {
-                vars.runJustStarted = false;
-                return false;
-            }
-            
+            print("[SCORN ASL] loadedSubLevel " + old.loadedSubLevel.ToString() + " -> " + current.loadedSubLevel.ToString());
             return true;
         }
 
-        // Custom last split
+        // Custom last split; end run as soon as player loses control
         if (current.loadedSubLevel == 8 && current.pawnPositionX > 175000 && current.characterState[0] == 11) return true;
     }
 
     return false;
 }
-
