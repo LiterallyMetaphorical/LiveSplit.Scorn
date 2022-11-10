@@ -10,14 +10,14 @@ state("Scorn-Win64-Shipping", "Steam 1.0")
     byte1 characterState  : 0x48E4740, 0x180, 0x38, 0x0, 0x30, 0x2A0, 0x280, 0x6B0, 0x388;
 }
 
-state("Scorn-WinGDK-Shipping", "XboxGP v1.0")
+state("Scorn-WinGDK-Shipping", "XboxGP v1.1")
 {
-	int isLoading         : 0x44AD358, 0x180, 0x240;
-    int loadedSubLevel    : 0x44AD358, 0x180, 0x328;
-    byte12 cameraPosition : 0x44AD358, 0x180, 0x38, 0x0, 0x30, 0x2B8, 0x228, 0x11C;
+	int isLoading         : 0x44AF658, 0x180, 0x240;
+    int loadedSubLevel    : 0x44AF658, 0x180, 0x328;
+    byte12 cameraPosition : 0x44AF658, 0x180, 0x38, 0x0, 0x30, 0x2B8, 0x228, 0x11C;
 
-    float pawnPositionX   : 0x44AD358, 0x180, 0x38, 0x0, 0x30, 0x2A0, 0x130, 0x11C;
-    byte1 characterState  : 0x44AD358, 0x180, 0x38, 0x0, 0x30, 0x2A0, 0x280, 0x6B0, 0x388;
+    float pawnPositionX   : 0x44AF658, 0x180, 0x38, 0x0, 0x30, 0x2A0, 0x130, 0x11C;
+    byte1 characterState  : 0x44AF658, 0x180, 0x38, 0x0, 0x30, 0x2A0, 0x280, 0x6B0, 0x388;
 }
 
 state("Scorn-Win64-Shipping", "Steam v1.1.8.0")
@@ -82,8 +82,8 @@ init
         case 81539072: 
             version = "Steam v1.0";
             break;
-		case 76517376: 
-            version = "XboxGP v1.0";
+		case 76525568: 
+            version = "XboxGP v1.1";
             break; 
 		case 81547264: 
             version = "Steam v1.1.8.0";
@@ -174,7 +174,7 @@ split
     if (vars.isRunStarted) {
 
         // Normal splitting
-        if (current.loadedSubLevel == old.loadedSubLevel + 1) {
+        if (current.loadedSubLevel > old.loadedSubLevel) {
             print("[SCORN ASL] loadedSubLevel " + old.loadedSubLevel.ToString() + " -> " + current.loadedSubLevel.ToString());
             return true;
         }
