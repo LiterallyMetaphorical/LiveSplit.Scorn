@@ -174,7 +174,7 @@ split
     if (vars.isRunStarted) {
 
         // Normal splitting
-        if (current.loadedSubLevel > old.loadedSubLevel) {
+        if (current.loadedSubLevel > old.loadedSubLevel && old.loadedSubLevel != 0) {
             print("[SCORN ASL] loadedSubLevel " + old.loadedSubLevel.ToString() + " -> " + current.loadedSubLevel.ToString());
             return true;
         }
