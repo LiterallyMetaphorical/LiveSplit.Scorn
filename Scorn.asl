@@ -2,10 +2,9 @@
 
 state("Scorn-Win64-Shipping", "Steam 1.0")
 {
-	int isLoading       : 0x48E4740, 0x180, 0x240;
-    int loadedSubLevel  : 0x48E4740, 0x180, 0x328;
+	int isLoading         : 0x48E4740, 0x180, 0x240;
+    int loadedSubLevel    : 0x48E4740, 0x180, 0x328;
     byte12 cameraPosition : 0x48E4740, 0x180, 0x38, 0x0, 0x30, 0x2B8, 0x228, 0x11C;
-
     float pawnPositionX   : 0x48E4740, 0x180, 0x38, 0x0, 0x30, 0x2A0, 0x130, 0x11C;
     byte1 characterState  : 0x48E4740, 0x180, 0x38, 0x0, 0x30, 0x2A0, 0x280, 0x6B0, 0x388;
 }
@@ -15,7 +14,6 @@ state("Scorn-WinGDK-Shipping", "XboxGP v1.1")
 	int isLoading         : 0x44AF658, 0x180, 0x240;
     int loadedSubLevel    : 0x44AF658, 0x180, 0x328;
     byte12 cameraPosition : 0x44AF658, 0x180, 0x38, 0x0, 0x30, 0x2B8, 0x228, 0x11C;
-
     float pawnPositionX   : 0x44AF658, 0x180, 0x38, 0x0, 0x30, 0x2A0, 0x130, 0x11C;
     byte1 characterState  : 0x44AF658, 0x180, 0x38, 0x0, 0x30, 0x2A0, 0x280, 0x6B0, 0x388;
 }
@@ -23,20 +21,29 @@ state("Scorn-WinGDK-Shipping", "XboxGP v1.1")
 state("Scorn-Win64-Shipping", "Steam v1.1.8.0")
 {
 	int isLoading         : 0x48E69C0, 0x180, 0x240;
+    int loadedSubLevel    : 0x48E69C0, 0x180, 0x328;
+    byte12 cameraPosition : 0x48E69C0, 0x180, 0x38, 0x0, 0x30, 0x2B8, 0x228, 0x11C;
+    float pawnPositionX   : 0x48E69C0, 0x180, 0x38, 0x0, 0x30, 0x2A0, 0x130, 0x11C;
+    byte1 characterState  : 0x48E69C0, 0x180, 0x38, 0x0, 0x30, 0x2A0, 0x280, 0x6B0, 0x388;
+}
+
+state("Scorn-Win64-Shipping", "Steam v1.2.1.0")
+{
+    int isLoading         : 0x48C5300, 0x180, 0x240;
     /*                         ^       ^      ^
         GWorld-----------------|       |      |
         UAbstractScornGameInstance-----|      |
         bShowLoading--------------------------|
     */
 
-    int loadedSubLevel    : 0x48E69C0, 0x180, 0x328;
+    int loadedSubLevel    : 0x48C5300, 0x180, 0x328;
     /*                         ^       ^      ^
         GWorld-----------------|       |      |
         UAbstractScornGameInstance-----|      |
         EScornSubLevel------------------------|
     */
 
-    byte12 cameraPosition : 0x48E69C0, 0x180, 0x38, 0x0, 0x30, 0x2B8, 0x228, 0x11C;
+    byte12 cameraPosition : 0x48C5300, 0x180, 0x38, 0x0, 0x30, 0x2B8, 0x228, 0x11C;
     /*                         ^       ^      ^     ^     ^     ^     ^      ^
         GWorld-----------------|       |      |     |     |     |     |      |
         UAbstractScornGameInstance-----|      |     |     |     |     |      |
@@ -48,7 +55,7 @@ state("Scorn-Win64-Shipping", "Steam v1.1.8.0")
         FVector[RelativeLocation]--------------------------------------------|
     */
     
-    float pawnPositionX   : 0x48E69C0, 0x180, 0x38, 0x0, 0x30, 0x2A0, 0x130, 0x11C;
+    float pawnPositionX   : 0x48C5300, 0x180, 0x38, 0x0, 0x30, 0x2A0, 0x130, 0x11C;
     /*                         ^       ^      ^     ^     ^     ^     ^      ^
         GWorld-----------------|       |      |     |     |     |     |      |
         UAbstractScornGameInstance-----|      |     |     |     |     |      |
@@ -61,7 +68,7 @@ state("Scorn-Win64-Shipping", "Steam v1.1.8.0")
     */
 
     // we can only take a single byte ouf ot this; use as current.characterState[0]
-    byte1 characterState    : 0x48E69C0, 0x180, 0x38, 0x0, 0x30, 0x2A0, 0x280, 0x6B0, 0x388;
+    byte1 characterState    : 0x48C5300, 0x180, 0x38, 0x0, 0x30, 0x2A0, 0x280, 0x6B0, 0x388;
     /*                         ^           ^      ^     ^     ^     ^     ^      ^        ^
         GWorld-----------------|           |      |     |     |     |     |      |        |
         UAbstractScornGameInstance---------|      |     |     |     |     |      |        |
@@ -87,6 +94,9 @@ init
             break; 
 		case 81547264: 
             version = "Steam v1.1.8.0";
+            break;
+        case 81412096:
+            version = "Steam v1.2.1.0";
             break;
 
     default:
@@ -155,6 +165,12 @@ start
     }
 
     return false;
+}
+
+onStart
+{
+    vars.isRunStarted = true;
+    timer.IsGameTimePaused = false;
 }
 
 onReset
